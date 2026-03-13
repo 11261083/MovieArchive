@@ -1,6 +1,6 @@
 import './MovieArchiveLogin.css';
 
-import React, { useState, useContext } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { StateContext } from '../../MovieArchiveApp';
 
 export default function MovieArchiveLogin() {
@@ -14,6 +14,10 @@ export default function MovieArchiveLogin() {
     const [userIdInput, setUserIdInput] = useState('');
     const [userPasswordInput, setUserPasswordInput] = useState('');
     const [isPasswordHidden, setIsPasswordHidden] = useState(true);
+
+    useEffect(() => {
+        setIsPasswordHidden(true);
+    }, [userInfo])
 
     function handleRegisterBtn() {
         
@@ -35,7 +39,7 @@ export default function MovieArchiveLogin() {
     }
 
     function handleDeleteAccountBtn() {
-        const {message} = userDeleteAccount(userInfo.id);
+        const {message} = userDeleteAccount();
         alert(message);
     }
 

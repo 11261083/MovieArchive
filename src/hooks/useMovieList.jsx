@@ -93,7 +93,7 @@ export default function useMovieList() {
     }
 
     function loadFavoriteMovies(favoriteList) {
-        if(favoriteList) setMovieList(favoriteList);
+        setMovieList(favoriteList);
         setMovieListType("favorite");
     }
 
@@ -120,7 +120,7 @@ async function getRecentMovies(page) {
         const response = await axiosConfig.get('/discover/movie', {
             params: {
                 "page": page,
-                "sort_by": "release_date.desc",
+                "sort_by": "primary_release_date.desc",
                 "primary_release_date.lte": formattedDate,
                 "release_date.lte": formattedDate,
                 "region": "US",

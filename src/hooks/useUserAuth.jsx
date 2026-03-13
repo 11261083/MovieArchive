@@ -50,10 +50,11 @@ export default function useUserAuth() {
 
         if(!validateEmail(id)) return { result: false, message: "Enter a valid Email!" };
         
-        if(localStorage.getItem(id)) return { result: false, message: "Your ID is already registered!" };
+        if(localStorage.getItem(id)) return { result: false, message: "Type a valid ID and Password!" };
 
         if(pw) {
             setUser({id: id, password: pw, favoriteMoviesList: []});
+            return { result: true, message: "Register Success!" };
         }
         else {
             return { result: false, message: "Type a valid ID and Password!" };
@@ -88,9 +89,12 @@ export default function useUserAuth() {
         return { result: true, message: "Removed movie from Favorites List successfully" };
     }
 
-    function userDeleteAccount(id) {
-        localStorage.removeItem(id);
-        if(!localStorage.getItem(id)) {
+    function userDeleteAccount() {
+
+        if(!user) return { result: false, message: "User doesn't exist!" };
+
+        localStorage.removeItem(user.id);
+        if(!localStorage.getItem(user.id)) {
             userLogout();
             return { result: true, message: "User Deleted Successfully!" }
         }

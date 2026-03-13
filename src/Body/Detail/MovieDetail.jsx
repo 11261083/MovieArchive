@@ -88,7 +88,7 @@ export default function MovieDetail({ selectedMovieDetail, bodyPageNavigate }) {
                             <ExtraInfoTitleRow title="Origin Info" />
                             <ExtraInfoColumn title="Origin country" value={`${selectedMovieDetail.origin_country} • ${selectedMovieDetail.original_language}`} />
                             <br/>
-                            <ExtraInfoColumn title="Original Title" value={selectedMovieDetail.original_title} id="test" />
+                            <ExtraInfoColumn title="Original Title" value={selectedMovieDetail.original_title} />
                         </div>
                     </div>
                 </div>
