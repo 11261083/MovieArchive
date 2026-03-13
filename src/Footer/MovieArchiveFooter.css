@@ -1,0 +1,17 @@
+.footer-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+
+    height: 60px;
+    background-color: black;
+}
+
+.footer-go-to-top-btn {
+    background-color: inherit;
+    color: white;
+}
+
+.footer-container p {
+    color: white;
+}
