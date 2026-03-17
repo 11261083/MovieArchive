@@ -1,19 +1,12 @@
-import React, { useState, useRef, useEffect } from 'react';
-import axiosConfig from '../services/tmdbApiConfig.jsx'
+import { useRef } from 'react';
+import axiosConfig from '../services/tmdbApiConfig.jsx';
 
-export default function useMovieList() {
+export default function useMovieApi() {
 
-    const [movieList, setMovieList] = useState([]);
-    const [movieListType, setMovieListType] = useState("recent");
     const isMovieListLoading = useRef(false);
 
     const isLastPage = useRef(false);
     const page = useRef(1);
-    const currentSearchString = useRef("");
-
-    useEffect(() => {
-        loadRecentMovies();
-    }, [])
 
     async function loadRecentMovies() {
         isMovieListLoading.current = true;
@@ -21,11 +14,11 @@ export default function useMovieList() {
         page.current = 1;
         try {
             const result = await getRecentMovies(1);
-            setMovieList(result);
-            setMovieListType("recent");
+            return result;
         }
         catch(e) {
             console.error(e);
+            return [];
         }
         finally {
             isMovieListLoading.current = false;
@@ -40,13 +33,14 @@ export default function useMovieList() {
             if(result === null) return;
             if(result.length === 0) {
                 isLastPage.current = true;
-                return;
+                return [];
             }
-            setMovieList(prev => [...prev, ...result]);
             page.current += 1;
+            return result;
         }
         catch(e) {
             console.error(e);
+            return [];
         }
         finally {
             isMovieListLoading.current = false;
@@ -54,59 +48,62 @@ export default function useMovieList() {
     }
 
     async function loadSearchedMovies(searchString) {
+        if(!searchString) throw new Error("Empty or Invalid search string!");
         isMovieListLoading.current = true;
         isLastPage.current = false;
-        currentSearchString.current = searchString;
         page.current = 1;
         try {
             const result = await getSearchedMovies(searchString, 1);
-            setMovieList(result);
-            setMovieListType("search");
+            return result;
         }
         catch(e) {
             console.error(e);
+            return [];
         }
         finally {
             isMovieListLoading.current = false;
         }
     }
 
-    async function incrementPagesOfSearchedMovies() {
+    async function incrementPagesOfSearchedMovies(searchString) {
         if(isLastPage.current) return;
         isMovieListLoading.current = true;
         try {
-            const result = await getSearchedMovies(currentSearchString.current, page.current + 1);
+            const result = await getSearchedMovies(searchString, page.current + 1);
             if(result === null) return;
             if(result.length === 0) {
                 isLastPage.current = true;
                 return;
             }
-            setMovieList(prev => [...prev, ...result]);
             page.current += 1;
+            return result;
         }
         catch(e) {
             console.error(e);
+            return [];
         }
         finally {
             isMovieListLoading.current = false;
         }
     }
 
-    function loadFavoriteMovies(favoriteList) {
-        setMovieList(favoriteList);
-        setMovieListType("favorite");
+    async function loadMovieDetail(movieId) {
+        try {
+            const result = await getMovieDetailById(movieId);
+            return result;
+        }
+        catch(e) {
+            console.error(e);
+        }
     }
 
-    
     return { 
-        movieList,
-        movieListType,
         isMovieListLoading,
         loadRecentMovies,
         incrementPagesOfRecentMovies,
         loadSearchedMovies,
         incrementPagesOfSearchedMovies,
-        loadFavoriteMovies
+        loadMovieDetail
     }
     
 }
@@ -155,6 +152,23 @@ async function getSearchedMovies(searchString, page) {
     }
     catch(e) {
         console.error(e);
+        return null;
+    }
+}
+
+async function getMovieDetailById(movieId) {
+    try {
+        if(!movieId) {
+            throw new Error("No valid Id was found!");
+        }
+
+        const response = await axiosConfig.get(`/movie/${movieId}`);
+
+        return response.data;
+    }
+    catch(e) {
+        console.error(e);
+        //alert(e);
         return null;
     }
 }

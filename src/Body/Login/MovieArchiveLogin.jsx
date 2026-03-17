@@ -3,14 +3,9 @@ import './MovieArchiveLogin.css';
 import React, { useState, useEffect, useContext } from 'react';
 import { StateContext } from '../../MovieArchiveApp';
 
-export default function MovieArchiveLogin() {
+export default function MovieArchiveLogin({ userLogin, userLogout, userRegister, userDeleteAccount }) {
 
     const userInfo = useContext(StateContext).userInfoProvider;
-    const userLogin = useContext(StateContext).userLoginProvider;
-    const userLogout = useContext(StateContext).userLogoutProvider;
-    const userRegister = useContext(StateContext).userRegisterProvider;
-    const userDeleteAccount = useContext(StateContext).userDeleteAccountProvider;
-
     const [userIdInput, setUserIdInput] = useState('');
     const [userPasswordInput, setUserPasswordInput] = useState('');
     const [isPasswordHidden, setIsPasswordHidden] = useState(true);

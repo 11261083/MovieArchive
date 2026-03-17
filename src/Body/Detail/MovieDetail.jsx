@@ -1,26 +1,31 @@
 import './MovieDetail.css'
 
-import React, { useEffect, useContext } from 'react';
+import React, { useEffect, useContext, useState } from 'react';
 import { StateContext } from '../../MovieArchiveApp';
+import { useNavigate, useParams } from 'react-router';
 
 const fallbackPosterImgSrc = "/poster_not_found.png";
 const POSTER_BASE_URL = "https://image.tmdb.org/t/p";
 const POSTER_SIZE = "/w500";
 
-export default function MovieDetail({ selectedMovieDetail, bodyPageNavigate }) {
+export default function MovieDetail({ loadMovieDetail, userAddFavoriteMovieToList, userRemoveFavoriteMovieFromList }) {
 
+    const navigate = useNavigate();
+    const { movieId } = useParams();
+
+    const [selectedMovieDetail, setSelectedMovieDetail] = useState(null);
     const userInfo = useContext(StateContext).userInfoProvider;
-    const userAddFavoriteMovieToList = useContext(StateContext).userAddFavoriteMovieToListProvider;
-    const userRemoveFavoriteMovieFromList = useContext(StateContext).userRemoveFavoriteMovieFromListProvider;
 
-    let isFavorite;
+    useEffect(() => {
+        loadMovieDetail(movieId)
+            .then(result => setSelectedMovieDetail(result))
+            .catch(e => console.error(e));
+    }, []);
+
+    let isFavorite = false;
     if(selectedMovieDetail) {
         isFavorite = (userInfo ? userInfo.favoriteMoviesList.some(movie => movie.id === selectedMovieDetail.id) : false);
     }
-
-    useEffect(() => {
-        window.scrollTo(0, 0);
-    }, []);
 
     function handleFallbackPoster(e) {
         e.target.src = fallbackPosterImgSrc;
@@ -28,7 +33,7 @@ export default function MovieDetail({ selectedMovieDetail, bodyPageNavigate }) {
 
     function handleFavoriteAdd() {
         if(!userInfo) {
-            bodyPageNavigate("login");
+            navigate("/login");
             return;
         }
 
@@ -92,7 +97,7 @@ export default function MovieDetail({ selectedMovieDetail, bodyPageNavigate }) {
                         </div>
                     </div>
                 </div>
-            ) : "Error Finding Movie!"}
+            ) : "Movie Detail was not found!"}
         </div>
     );
 }
