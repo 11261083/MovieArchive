@@ -1,16 +1,16 @@
-import Detail from './Body/Detail/MovieDetail.jsx';
-import Recent from './Body/Home/MovieArchiveRecent.jsx';
-import Search from './Body/Home/MovieArchiveSearch.jsx';
-import Favorite from './Body/Home/MovieArchiveFavorite.jsx';
-import Login from './Body/Login/MovieArchiveLogin.jsx';
-import Footer from './Footer/MovieArchiveFooter.jsx';
-import Header from './Header/MovieArchiveHeader.jsx';
+import Detail from './Body/Detail/MovieDetail';
+import Recent from './Body/Home/MovieArchiveRecent';
+import Search from './Body/Home/MovieArchiveSearch';
+import Favorite from './Body/Home/MovieArchiveFavorite';
+import Login from './Body/Login/MovieArchiveLogin';
+import Footer from './Footer/MovieArchiveFooter';
+import Header from './Header/MovieArchiveHeader';
 import './MovieArchiveApp.css';
 
 import React, { createContext } from 'react';
 import { Navigate, Route, Routes } from 'react-router';
-import useMovieApi from './hooks/useMovieApi.jsx';
-import useUserAuth from './hooks/useUserAuth.jsx';
+import useMovieApi from './hooks/useMovieApi';
+import useUserAuth from './hooks/useUserAuth';
 
 export const StateContext = createContext();
 

@@ -15,7 +15,7 @@ export default function MovieArchiveHeader() {
     function handleSearchInputChange(e) {
         setSearchInputText(e.target.value);
     }
-
+    
     function handleSearchBtn() {
         if(!searchInputText) return;
         navigate(`/home/search?q=${searchInputText}`);

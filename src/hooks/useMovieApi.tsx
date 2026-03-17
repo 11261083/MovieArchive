@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import axiosConfig from '../services/tmdbApiConfig.jsx';
+import axiosConfig from '../services/tmdbApiConfig';
 
 export default function useMovieApi() {
 
