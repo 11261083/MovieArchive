@@ -11,8 +11,12 @@ import React, { createContext } from 'react';
 import { Navigate, Route, Routes } from 'react-router';
 import useMovieApi from './hooks/useMovieApi';
 import useUserAuth from './hooks/useUserAuth';
+import type { IUser } from './model/model';
 
-export const StateContext = createContext();
+type ContextType = {
+    userInfoProvider: IUser | null
+}
+export const StateContext = createContext<ContextType | null>(null);
 
 export default function MovieArchiveApp() {
 
@@ -22,7 +26,7 @@ export default function MovieArchiveApp() {
         userLogout, 
         userRegister, 
         userAddFavoriteMovieToList, 
-        userRemoveFavoriteMovieFromList, 
+        userRemoveFavoriteMovieFromList,
         userDeleteAccount 
     } = useUserAuth();
 

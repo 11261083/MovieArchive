@@ -1,27 +1,28 @@
 import './MovieArchiveHeader.css';
 
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, type ChangeEvent, type KeyboardEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { StateContext } from '../MovieArchiveApp';
+import type { IUser } from '../model/model';
 
 export default function MovieArchiveHeader() {
 
     const navigate = useNavigate();
 
-    const userInfo = useContext(StateContext).userInfoProvider;
+    const userInfo: IUser | null = useContext(StateContext)!.userInfoProvider;
 
-    const [searchInputText, setSearchInputText] = useState("");
+    const [searchInputText, setSearchInputText] = useState<string>("");
 
-    function handleSearchInputChange(e) {
+    function handleSearchInputChange(e: ChangeEvent<HTMLInputElement>): void {
         setSearchInputText(e.target.value);
     }
     
-    function handleSearchBtn() {
-        if(!searchInputText) return;
+    function handleSearchBtn(): void {
+        if(!searchInputText.trim()) return;
         navigate(`/home/search?q=${searchInputText}`);
     }
 
-    function handleInputFieldEnterKeyUp(e) {
+    function handleInputFieldEnterKeyUp(e: KeyboardEvent<HTMLInputElement>): void {
         if(e.key === "Enter") {
             handleSearchBtn();
         }

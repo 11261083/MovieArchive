@@ -1,20 +1,25 @@
 import { useRef } from 'react';
+
+import axios from 'axios';
 import axiosConfig from '../services/tmdbApiConfig';
+import { mapMovieDtoToMovie, mapMovieDetailDtoToMovieDetail } from '../model/mapper';
+import type { IMovie, IMovieDetail } from '../model/model';
+import type { IMovieDetailDto, IMovieDto } from '../model/DTO';
 
 export default function useMovieApi() {
 
-    const isMovieListLoading = useRef(false);
+    const isMovieListLoading = useRef<boolean>(false);
 
-    const isLastPage = useRef(false);
-    const page = useRef(1);
+    const isLastPage = useRef<boolean>(false);
+    const page = useRef<number>(1);
 
-    async function loadRecentMovies() {
+    async function loadRecentMovies(): Promise<IMovie[]> {
         isMovieListLoading.current = true;
         isLastPage.current = false;
         page.current = 1;
         try {
-            const result = await getRecentMovies(1);
-            return result;
+            const result: IMovieDto[] = await getRecentMovies(1) ?? [];
+            return result.map((dto: IMovieDto) => mapMovieDtoToMovie(dto));
         }
         catch(e) {
             console.error(e);
@@ -25,18 +30,18 @@ export default function useMovieApi() {
         }
     }
 
-    async function incrementPagesOfRecentMovies() {
-        if(isLastPage.current) return;
+    async function incrementPagesOfRecentMovies(): Promise<IMovie[]> {
+        if(isLastPage.current) return [];
         isMovieListLoading.current = true;
         try {
-            const result = await getRecentMovies(page.current + 1);
-            if(result === null) return;
+            const result: IMovieDto[] | null = await getRecentMovies(page.current + 1);
+            if(result === null) return [];
             if(result.length === 0) {
                 isLastPage.current = true;
                 return [];
             }
             page.current += 1;
-            return result;
+            return result.map((dto: IMovieDto) => mapMovieDtoToMovie(dto));
         }
         catch(e) {
             console.error(e);
@@ -47,14 +52,14 @@ export default function useMovieApi() {
         }
     }
 
-    async function loadSearchedMovies(searchString) {
-        if(!searchString) throw new Error("Empty or Invalid search string!");
+    async function loadSearchedMovies(searchString: string): Promise<IMovie[]> {
+        if(!searchString.trim()) throw new Error("Empty or Invalid search string!");
         isMovieListLoading.current = true;
         isLastPage.current = false;
         page.current = 1;
         try {
-            const result = await getSearchedMovies(searchString, 1);
-            return result;
+            const result: IMovieDto[] = await getSearchedMovies(searchString, 1) ?? [];
+            return result.map((dto: IMovieDto) => mapMovieDtoToMovie(dto));
         }
         catch(e) {
             console.error(e);
@@ -65,18 +70,18 @@ export default function useMovieApi() {
         }
     }
 
-    async function incrementPagesOfSearchedMovies(searchString) {
-        if(isLastPage.current) return;
+    async function incrementPagesOfSearchedMovies(searchString: string): Promise<IMovie[]> {
+        if(isLastPage.current) return [];
         isMovieListLoading.current = true;
         try {
-            const result = await getSearchedMovies(searchString, page.current + 1);
-            if(result === null) return;
+            const result: IMovieDto[] | null = await getSearchedMovies(searchString, page.current + 1);
+            if(result === null) return [];
             if(result.length === 0) {
                 isLastPage.current = true;
-                return;
+                return [];
             }
             page.current += 1;
-            return result;
+            return result.map((dto: IMovieDto) => mapMovieDtoToMovie(dto));
         }
         catch(e) {
             console.error(e);
@@ -87,13 +92,15 @@ export default function useMovieApi() {
         }
     }
 
-    async function loadMovieDetail(movieId) {
+    async function loadMovieDetail(movieId: number): Promise<IMovieDetail | null> {
         try {
-            const result = await getMovieDetailById(movieId);
-            return result;
+            const result: IMovieDetailDto | null = await getMovieDetailById(movieId);
+            if(!result) return null;
+            return mapMovieDetailDtoToMovieDetail(result);
         }
         catch(e) {
             console.error(e);
+            return null;
         }
     }
 
@@ -108,7 +115,7 @@ export default function useMovieApi() {
     
 }
 
-async function getRecentMovies(page) {
+async function getRecentMovies(page: number): Promise<IMovieDto[] | null> {
     try {
 
         const date = new Date();
@@ -129,11 +136,14 @@ async function getRecentMovies(page) {
     }
     catch(e) {
         console.error(e);
+        if(axios.isAxiosError(e)) {
+            console.error(e.response?.status, e.response?.data.status_message);
+        }
         return null;
     }
 }
 
-async function getSearchedMovies(searchString, page) {
+async function getSearchedMovies(searchString: string, page: number): Promise<IMovieDto[] | null> {
     try {
 
         if(!searchString) {
@@ -152,11 +162,14 @@ async function getSearchedMovies(searchString, page) {
     }
     catch(e) {
         console.error(e);
+        if(axios.isAxiosError(e)) {
+            console.error(e.response?.status, e.response?.data.status_message);
+        }
         return null;
     }
 }
 
-async function getMovieDetailById(movieId) {
+async function getMovieDetailById(movieId: number): Promise<IMovieDetailDto | null> {
     try {
         if(!movieId) {
             throw new Error("No valid Id was found!");
@@ -168,7 +181,9 @@ async function getMovieDetailById(movieId) {
     }
     catch(e) {
         console.error(e);
-        //alert(e);
+        if(axios.isAxiosError(e)) {
+            console.error(e.response?.status, e.response?.data.status_message);
+        }
         return null;
     }
 }

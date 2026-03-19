@@ -2,19 +2,30 @@ import './MovieArchiveLogin.css';
 
 import React, { useState, useEffect, useContext } from 'react';
 import { StateContext } from '../../MovieArchiveApp';
+import type { IUser } from '../../model/model';
 
-export default function MovieArchiveLogin({ userLogin, userLogout, userRegister, userDeleteAccount }) {
+export default function MovieArchiveLogin({ 
+    userLogin, 
+    userLogout, 
+    userRegister, 
+    userDeleteAccount 
+}: {
+    userLogin: (id: string, pw: string) => {result: boolean, message: string}, 
+    userLogout: () => void, 
+    userRegister: (id: string, pw: string) => {result: boolean, message: string}, 
+    userDeleteAccount: () => {result: boolean, message: string}
+}) {
 
-    const userInfo = useContext(StateContext).userInfoProvider;
-    const [userIdInput, setUserIdInput] = useState('');
-    const [userPasswordInput, setUserPasswordInput] = useState('');
-    const [isPasswordHidden, setIsPasswordHidden] = useState(true);
+    const userInfo: IUser | null = useContext(StateContext)!.userInfoProvider;
+    const [userIdInput, setUserIdInput] = useState<string>('');
+    const [userPasswordInput, setUserPasswordInput] = useState<string>('');
+    const [isPasswordHidden, setIsPasswordHidden] = useState<boolean>(true);
 
     useEffect(() => {
         setIsPasswordHidden(true);
     }, [userInfo])
 
-    function handleRegisterBtn() {
+    function handleRegisterBtn(): void {
         
         const {result, message} = userRegister(userIdInput, userPasswordInput);
         if(!result) alert(message);
@@ -24,7 +35,7 @@ export default function MovieArchiveLogin({ userLogin, userLogout, userRegister,
         }
     }
 
-    function handleLoginBtn() {
+    function handleLoginBtn(): void {
         const {result, message} = userLogin(userIdInput, userPasswordInput);
         if(!result) alert(message);
         else {
@@ -33,7 +44,7 @@ export default function MovieArchiveLogin({ userLogin, userLogout, userRegister,
         }
     }
 
-    function handleDeleteAccountBtn() {
+    function handleDeleteAccountBtn(): void {
         const {message} = userDeleteAccount();
         alert(message);
     }

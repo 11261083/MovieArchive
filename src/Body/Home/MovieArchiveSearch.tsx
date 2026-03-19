@@ -1,15 +1,26 @@
-import { useEffect, useRef, useState } from 'react';
+import './MovieArchiveHome.css';
+
+import { useEffect, useRef, useState, type RefObject } from 'react';
 import HomeCardsGrid from './HomeCardsGrid';
 import { useSearchParams } from 'react-router';
+import type { IMovie } from '../../model/model';
 
-export default function MovieArchiveSearch({ loadSearchedMovies, incrementPagesOfSearchedMovies, isMovieListLoading }) {
+export default function MovieArchiveSearch({ 
+    loadSearchedMovies, 
+    incrementPagesOfSearchedMovies, 
+    isMovieListLoading 
+}: {
+    loadSearchedMovies: (searchString: string) => Promise<IMovie[]>, 
+    incrementPagesOfSearchedMovies: (searchString: string) => Promise<IMovie[]>, 
+    isMovieListLoading: RefObject<boolean>
+}) {
 
     const [searchParams] = useSearchParams();
-    const searchString = searchParams.get('q');
+    const searchString: string = searchParams.get('q') ?? "";
 
-    const [searchedMovieList, setSearchedMovieList] = useState([]);
+    const [searchedMovieList, setSearchedMovieList] = useState<IMovie[]>([]);
 
-    const delimiterRef = useRef(null);
+    const delimiterRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         loadSearchedMovies(searchString)
@@ -24,7 +35,7 @@ export default function MovieArchiveSearch({ loadSearchedMovies, incrementPagesO
         };
 
         const observer = new IntersectionObserver((entries) => {
-            if(entries[0].isIntersecting) {
+            if(entries[0] ? entries[0].isIntersecting : false) {
                 if(isMovieListLoading.current) return;
                 incrementPagesOfSearchedMovies(searchString)
                     .then(result => {
@@ -35,7 +46,7 @@ export default function MovieArchiveSearch({ loadSearchedMovies, incrementPagesO
                     .catch(e => console.error(e));
             }
         }, options);
-        observer.observe(delimiterRef.current);
+        if(delimiterRef.current) observer.observe(delimiterRef.current);
 
         return(() => {
             observer.disconnect();
@@ -43,9 +54,10 @@ export default function MovieArchiveSearch({ loadSearchedMovies, incrementPagesO
     }, [searchString]);
 
     return(
-        <>
+        <div className="home-container">
+            <div className='home-list-title'>Search Movies</div>
             <HomeCardsGrid movieList={searchedMovieList} />
             <div className='screen-delimiter' ref={delimiterRef}></div>
-        </>
+        </div>
     );
 }

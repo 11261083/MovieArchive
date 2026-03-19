@@ -1,15 +1,18 @@
+import './MovieArchiveHome.css';
+
 import { useContext, useEffect, useState } from 'react';
 import HomeCardsGrid from './HomeCardsGrid';
 import { StateContext } from '../../MovieArchiveApp';
 import { useNavigate } from 'react-router';
+import type { IMovie, IUser } from '../../model/model';
 
 export default function MovieArchiveFavorite() {
 
     const navigate = useNavigate();
 
-    const userInfo = useContext(StateContext).userInfoProvider;
+    const userInfo: IUser | null = useContext(StateContext)!.userInfoProvider;
 
-    const [favoriteMovieList, setFavoriteMovieList] = useState([]);
+    const [favoriteMovieList, setFavoriteMovieList] = useState<IMovie[]>([]);
 
     useEffect(() => {
         if(userInfo) setFavoriteMovieList(userInfo.favoriteMoviesList);
@@ -17,6 +20,9 @@ export default function MovieArchiveFavorite() {
     }, [userInfo])
 
     return(
-        <HomeCardsGrid movieList={favoriteMovieList} />
+        <div className="home-container">
+            <div className='home-list-title'>Favorite Movies</div>
+            <HomeCardsGrid movieList={favoriteMovieList} />
+        </div>
     );
 }

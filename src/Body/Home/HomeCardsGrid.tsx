@@ -1,23 +1,23 @@
 import { useNavigate } from 'react-router';
-import './MovieArchiveHome.css';
+import type { IMovie } from '../../model/model';
+import type { SyntheticEvent } from 'react';
 
-export default function HomeCardsGrid({ movieList }) {
+export default function HomeCardsGrid({ movieList }: {movieList: IMovie[]}) {
 
     const navigate = useNavigate();
 
-    function handleMovieCardClick(movieId) {
+    function handleMovieCardClick(movieId: number): void {
         navigate(`/detail/${movieId}`);
     }
 
     return(
-        <div className="home-container">
-            <div className='home-list-title'>Recent Movies</div>
+        <>
             <div className='home-cards-grid'>
-                {movieList.length > 0 ? movieList.map((movie) => {
-                    const movieTitle = movie.title || "Title not found";
-                    const releaseYear = movie.release_date.split("-")[0] || "Release date not found";
-                    const averageVoteScore = Number(movie.vote_average).toFixed(2);
-                    const voteCount = movie.vote_count;
+                {movieList.length > 0 ? movieList.map((movie: IMovie) => {
+                    const movieTitle: string = movie.title || "Title not found";
+                    const releaseYear: string = movie.release_date.split("-")[0] || "Release date not found";
+                    const averageVoteScore:string = Number(movie.vote_average).toFixed(2);
+                    const voteCount: number = movie.vote_count;
                     return(
                         <MovieCard key={movie.id}
                             moviePosterPath={movie.poster_path}
@@ -31,18 +31,34 @@ export default function HomeCardsGrid({ movieList }) {
                     )
                 }) : "No Movies Found!"}
             </div>
-        </div>
+        </>
     );
 }
 
-function MovieCard({ moviePosterPath, movieTitle, releaseYear, averageVoteScore, voteCount, movieId, handleMovieCardClick }) {
+function MovieCard({ 
+    moviePosterPath, 
+    movieTitle, 
+    releaseYear, 
+    averageVoteScore, 
+    voteCount, 
+    movieId, 
+    handleMovieCardClick 
+}: {
+    moviePosterPath: string, 
+    movieTitle: string, 
+    releaseYear: string, 
+    averageVoteScore: string, 
+    voteCount: number, 
+    movieId: number, 
+    handleMovieCardClick: (movieId: number) => void 
+}) {
 
     const fallbackPosterImgSrc = "/poster_not_found.png";
     const POSTER_BASE_URL = "https://image.tmdb.org/t/p";
     const POSTER_SIZE = "/w500";
 
-    function handleFallbackPoster(e) {
-        e.target.src = fallbackPosterImgSrc;
+    function handleFallbackPoster(e: SyntheticEvent<HTMLImageElement>) {
+        e.currentTarget.src = fallbackPosterImgSrc;
     }
 
     return(

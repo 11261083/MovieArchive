@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react';
-
-import Cookies from 'js-cookie';
+import type { IUser, IMovie, IMovieDetail } from "../model/model"
 
 export default function useUserAuth() {
 
-    const [user, setUser] = useState(null);
+    const [user, setUser] = useState<IUser | null>(null);
 
     useEffect(() => {
-        const lastLoggedUser = JSON.parse(Cookies.get('movieArchiveUser') ? Cookies.get('movieArchiveUser') : null);
-        if(lastLoggedUser) {
-            const savedUser = JSON.parse(localStorage.getItem(lastLoggedUser.id));
-            if(savedUser) {
+        const cookieData: string = localStorage.getItem('movieArchiveUser') ?? "";
+        if(cookieData) {
+            const lastLoggedUser: {id: string, password: string} = JSON.parse(cookieData);
+            const localStorageData: string = localStorage.getItem(lastLoggedUser.id) ?? "";
+            if(localStorageData) {
+                const savedUser: IUser = JSON.parse(localStorageData);
                 if(savedUser.password === lastLoggedUser.password) {
                     setUser(savedUser);
                 }
@@ -21,13 +22,14 @@ export default function useUserAuth() {
     useEffect(() => {
         if(user) {
             localStorage.setItem(user.id, JSON.stringify(user));
-            Cookies.set('movieArchiveUser', JSON.stringify({"id": user.id, "password": user.password}), { expires: 7 });
+            localStorage.setItem('movieArchiveUser', JSON.stringify({"id": user.id, "password": user.password}));
         }
     }, [user]);
 
-    function userLogin(id, pw) {
-        const savedUser = JSON.parse(localStorage.getItem(id));
-        if(savedUser) {
+    function userLogin(id: string, pw: string): {result: boolean, message: string} {
+        const userStorageData: string = localStorage.getItem(id) ?? "";
+        if(userStorageData) {
+            const savedUser: IUser = JSON.parse(userStorageData);
             if(savedUser.password !== pw) {
                 return { result: false, message: "Wrong Password!" };
             }
@@ -36,17 +38,17 @@ export default function useUserAuth() {
                 return { result: true, message: "Login Successful!" };
             }
         }
-        return { result: false, message: "Your ID is not registered!" };
+        return { result: false, message: "Login failed!" };
     }
 
-    function userLogout() {
-        Cookies.remove('movieArchiveUser');
+    function userLogout(): void {
+        localStorage.removeItem('movieArchiveUser');
         setUser(null);
     }
 
-    function userRegister(id, pw) {
+    function userRegister(id: string, pw: string): {result: boolean, message: string} {
 
-        if(user) return { result:false, message: "User already Logged In" };
+        if(user) return { result: false, message: "User already Logged In" };
 
         if(!validateEmail(id)) return { result: false, message: "Enter a valid Email!" };
         
@@ -61,44 +63,46 @@ export default function useUserAuth() {
         }
     }
 
-    function userAddFavoriteMovieToList(movie) {
+    function userAddFavoriteMovieToList(movie: IMovieDetail): {result: boolean, message: string} {
         if(!user) return { result: false, message: "User doesn't exist!" };
 
-        if(user.favoriteMoviesList.some((item) => movie.id === item.id)) return { result: false, message: "Movie already in Favorites List!" }
+        if(user.favoriteMoviesList.some((item: IMovie) => movie.id === item.id)) return { result: false, message: "Movie already in Favorites List!" }
 
-        const newMovieItem = {
-            "id": movie.id,
-            "poster_path": movie.poster_path,
-            "release_date": movie.release_date,
-            "title": movie.title,
-            "vote_average": movie.vote_average,
-            "vote_count": movie.vote_count
+        const newMovieItem: IMovie = {
+            id: movie.id,
+            poster_path: movie.poster_path,
+            release_date: movie.release_date,
+            title: movie.title,
+            vote_average: movie.vote_average,
+            vote_count: movie.vote_count
         }
-        const newList = [...user.favoriteMoviesList, newMovieItem];
-        setUser(prev => ({...prev, favoriteMoviesList: newList}));
+
+        setUser((prev) => {
+            return {...prev!, favoriteMoviesList: [...prev!.favoriteMoviesList, newMovieItem]};
+        });
         return { result: true, message: "Added movie to Favorites List successfully" };
     }
 
-    function userRemoveFavoriteMovieFromList(id) {
+    function userRemoveFavoriteMovieFromList(movieId: number): {result: boolean, message: string} {
         if(!user) return { result: false, message: "User doesn't exist!" };
 
-        if(!user.favoriteMoviesList.some((item) => id === item.id)) return { result: false, message: "Movie was not found in Favorites List!" }
+        if(!user.favoriteMoviesList.some((item: IMovie) => movieId === item.id)) return { result: false, message: "Movie was not found in Favorites List!" };
 
-        const newList = [...user.favoriteMoviesList].filter((item) => item.id !== id);
-        setUser(prev => ({...prev, favoriteMoviesList: newList}));
+        const newList: IMovie[] = [...user.favoriteMoviesList].filter((item) => item.id !== movieId);
+        setUser(prev => ({...prev!, favoriteMoviesList: newList}));
         return { result: true, message: "Removed movie from Favorites List successfully" };
     }
 
-    function userDeleteAccount() {
+    function userDeleteAccount(): {result: boolean, message: string} {
 
         if(!user) return { result: false, message: "User doesn't exist!" };
 
         localStorage.removeItem(user.id);
         if(!localStorage.getItem(user.id)) {
             userLogout();
-            return { result: true, message: "User Deleted Successfully!" }
+            return { result: true, message: "User Deleted Successfully!" };
         }
-        else return {result: false, message: "Failed Deleting User!"}
+        else return {result: false, message: "Failed Deleting User!"};
     }
 
     return {
@@ -112,7 +116,7 @@ export default function useUserAuth() {
     };
 }
 
-function validateEmail(email) {
+function validateEmail(email: string): boolean {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return regex.test(email);
 }
